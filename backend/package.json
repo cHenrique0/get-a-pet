@@ -1,0 +1,33 @@
+{
+  "name": "get-a-pet-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node ./app.js",
+    "dev": "nodemon ./app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/cHenrique0/get-a-pet.git"
+  },
+  "author": "Claudio Henrique <claudio.alexandre@discente.ufma.br>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cHenrique0/get-a-pet/issues"
+  },
+  "homepage": "https://github.com/cHenrique0/get-a-pet#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.2",
+    "express": "^4.18.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.6.1",
+    "multer": "^1.4.5-lts.1"
+  }
+}
