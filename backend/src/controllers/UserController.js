@@ -5,7 +5,7 @@ const User = require("../models/User");
 const createUserToken = require("../helpers/create-user-tokens");
 
 class UserController {
-  static async register(req, res, next) {
+  static async signup(req, res, next) {
     const {
       firstname,
       lastname,
@@ -69,10 +69,6 @@ class UserController {
       .save()
       .then(async (user) => {
         await createUserToken(user, req, res);
-        /* return res.status(StatusCodes.CREATED).json({
-          msg: "User registered successfully!",
-          data: { newUser: user },
-        }); */
       })
       .catch((err) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: err });
