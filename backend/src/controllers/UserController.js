@@ -2,6 +2,7 @@ const { StatusCodes } = require("http-status-codes");
 const { message } = require("../helpers/utils");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const createUserToken = require("../helpers/create-user-tokens");
 
 class UserController {
   static async register(req, res, next) {
@@ -19,28 +20,28 @@ class UserController {
     if (!firstname || !lastname) {
       return res
         .status(StatusCodes.UNPROCESSABLE_ENTITY)
-        .json(message("The firstname or lastname can't be empty"));
+        .json({ msg: "The firstname or lastname can't be empty" });
     }
     if (!email) {
       return res
         .status(StatusCodes.UNPROCESSABLE_ENTITY)
-        .json(message("The email can't be empty"));
+        .json({ msg: "The email can't be empty" });
     }
     if (!phone) {
       return res
         .status(StatusCodes.UNPROCESSABLE_ENTITY)
-        .json(message("The phone can't be empty"));
+        .json({ msg: "The phone can't be empty" });
     }
     if (!password || !confirmPassword) {
       return res
         .status(StatusCodes.UNPROCESSABLE_ENTITY)
-        .json(message("The password or confirm password can't be empty"));
+        .json({ msg: "The password or confirm password can't be empty" });
     }
 
     if (password !== confirmPassword) {
       return res
         .status(StatusCodes.UNPROCESSABLE_ENTITY)
-        .json(message("Passwords don't match"));
+        .json({ msg: "Passwords don't match" });
     }
 
     // Check if the user email already exists
@@ -48,7 +49,7 @@ class UserController {
     if (emailExists) {
       return res
         .status(StatusCodes.UNPROCESSABLE_ENTITY)
-        .json(message("Email already registered. Please, choosen another."));
+        .json({ msg: "Email already registered. Please, choosen another." });
     }
 
     // Encrypting the password
@@ -66,13 +67,15 @@ class UserController {
 
     await newUser
       .save()
-      .then((user) => {
-        return res
-          .status(StatusCodes.CREATED)
-          .json(message("User registered successfully!", user));
+      .then(async (user) => {
+        await createUserToken(user, req, res);
+        /* return res.status(StatusCodes.CREATED).json({
+          msg: "User registered successfully!",
+          data: { newUser: user },
+        }); */
       })
       .catch((err) => {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(message(err));
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: err });
       });
   }
 }
