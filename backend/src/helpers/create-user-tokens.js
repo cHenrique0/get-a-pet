@@ -11,7 +11,7 @@ const createUserToken = async (user, req, res) => {
 
   return res
     .status(StatusCodes.OK)
-    .json({ message: "Authenticated user", token, data: { newUser: user } });
+    .json({ message: "Authenticated user", token, data: { user } });
 };
 
 module.exports = createUserToken;

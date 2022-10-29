@@ -74,6 +74,51 @@ class UserController {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: err });
       });
   }
+
+  static async login(req, res, next) {
+    const { email, password } = req.body;
+
+    // Validations
+    if (!email || !password) {
+      return res
+        .status(StatusCodes.UNPROCESSABLE_ENTITY)
+        .json({ msg: "Email or password can't be empty" });
+    }
+
+    // Check if user exists
+    await User.findOne({ email: email })
+      .then(async (userFound) => {
+        if (!userFound) {
+          return res.status(StatusCodes.NOT_FOUND).json({
+            msg: "User not found! User email maybe incorrect.",
+            data: { user: userFound },
+          });
+        }
+
+        // Check if password match
+        await bcrypt
+          .compare(password, userFound.password)
+          .then((match) => {
+            if (!match) {
+              return res
+                .status(StatusCodes.NOT_FOUND)
+                .json({ msg: "Invalid password. Try again." });
+            }
+
+            return createUserToken(userFound, req, res);
+          })
+          .catch((err) => {
+            return res
+              .status(StatusCodes.INTERNAL_SERVER_ERROR)
+              .json({ msg: err.name, error: err.message });
+          });
+      })
+      .catch((err) => {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ msg: err.name, error: err.message });
+      });
+  }
 }
 
 module.exports = UserController;
