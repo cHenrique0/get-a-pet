@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+// const mongoose = require("./src/database/connection");
+const UserRoutes = require("./src/routes/UserRoutes");
 
 const app = express();
 const port = process.env.APP_PORT;
@@ -21,9 +23,7 @@ app.use(
 app.use(express.static(__dirname + "/public"));
 
 // Routes
-app.get("/", (req, res) => {
-  res.json({ message: "Testing" });
-});
+app.use("/users", UserRoutes);
 
 // Starting App
 app.listen(port, () => {
