@@ -1,9 +1,11 @@
+require("dotenv").config();
 const { StatusCodes } = require("http-status-codes");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const createUserToken = require("../helpers/create-user-tokens");
 const getToken = require("../helpers/get-token");
+const getUserByToken = require("../helpers/get-user-by-token");
 
 class UserController {
   static async signup(req, res, next) {
@@ -50,7 +52,7 @@ class UserController {
     if (emailExists) {
       return res
         .status(StatusCodes.UNPROCESSABLE_ENTITY)
-        .json({ msg: "Email already registered. Please, choosen another." });
+        .json({ msg: "Email already registered. Please, choose another." });
     }
 
     // Encrypting the password
@@ -155,6 +157,36 @@ class UserController {
         }
 
         return res.status(StatusCodes.OK).json({ data: { user } });
+      })
+      .catch((err) => {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ msg: err.name, error: err.message });
+      });
+  };
+
+  static editUser = async (req, res, next) => {
+    const { id } = req.params;
+    const { firstname, lastname, email, password, phone, picture } = req.body;
+    // TODO: validations middleware
+    const updatedInfos = {
+      firstname,
+      lastname,
+      email,
+      password,
+      phone,
+      picture,
+    };
+    const token = getToken(req);
+    const user = await getUserByToken(token, res);
+    Object.assign(user, updatedInfos);
+
+    await User.findOneAndUpdate({ _id: user.id }, { $set: user }, { new: true })
+      .then((updatedUser) => {
+        return res.status(StatusCodes.OK).json({
+          msg: "User successfully updated!",
+          data: { user: updatedUser },
+        });
       })
       .catch((err) => {
         return res
