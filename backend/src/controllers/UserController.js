@@ -141,6 +141,27 @@ class UserController {
       .status(StatusCodes.OK)
       .json({ msg: "", data: { user: currentUser } });
   }
+
+  static getUserById = async (req, res, next) => {
+    const { id } = req.params;
+
+    await User.findById(id)
+      .select("-password")
+      .then((user) => {
+        if (!user) {
+          return res
+            .status(StatusCodes.NOT_FOUND)
+            .json({ msg: "User not found", data: { user } });
+        }
+
+        return res.status(StatusCodes.OK).json({ data: { user } });
+      })
+      .catch((err) => {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ msg: err.name, error: err.message });
+      });
+  };
 }
 
 module.exports = UserController;
