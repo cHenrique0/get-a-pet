@@ -9,9 +9,16 @@ const createUserToken = async (user, req, res) => {
     process.env.JWT_SECRET
   );
 
-  return res
-    .status(StatusCodes.OK)
-    .json({ message: "Authenticated user", token, data: { user } });
+  return res.status(StatusCodes.OK).json({
+    message: "Authenticated user",
+    token,
+    data: {
+      user: {
+        id: user._id,
+        email: user.email,
+      },
+    },
+  });
 };
 
 module.exports = createUserToken;
