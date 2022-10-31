@@ -1,8 +1,9 @@
 const { StatusCodes } = require("http-status-codes");
-const { message } = require("../helpers/utils");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const createUserToken = require("../helpers/create-user-tokens");
+const getToken = require("../helpers/get-token");
 
 class UserController {
   static async signup(req, res, next) {
@@ -118,6 +119,27 @@ class UserController {
           .status(StatusCodes.INTERNAL_SERVER_ERROR)
           .json({ msg: err.name, error: err.message });
       });
+  }
+
+  static async checkUser(req, res, next) {
+    let currentUser = undefined;
+    const { authorization } = req.headers;
+
+    if (!authorization) {
+      currentUser = null;
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ msg: "User not found", data: { user: currentUser } });
+    }
+
+    const token = getToken(req);
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    // .select("-password") -> return the user object without password
+    currentUser = await User.findById(decodedToken.id).select("-password");
+
+    return res
+      .status(StatusCodes.OK)
+      .json({ msg: "", data: { user: currentUser } });
   }
 }
 
